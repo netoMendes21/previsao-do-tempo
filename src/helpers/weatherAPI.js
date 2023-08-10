@@ -4,17 +4,25 @@ export const searchCities = async (cidade) => {
   const URL = `http://api.weatherapi.com/v1/search.json?lang=pt&key=${TOKEN}&q=${cidade}`;
   try {
     const resposta = await fetch(URL);
-    const dados = await resposta.json();
-    if (dados.length === 0) {
+    const info = await resposta.json();
+    if (info.length === 0) {
       window.alert('Nenhuma cidade encontrada');
     }
-    return dados;
+    return info;
   } catch (error) {
-    console.error(error);
+    console.error('erro: ', error);
     return [];
   }
 };
 
-export const getWeatherByCity = (/* cityURL */) => {
-//   seu código aqui
+export const getWeatherByCity = async (cityURL) => {
+  const URL = `http://api.weatherapi.com/v1/current.json?lang=pt&key=${TOKEN}&q=${cityURL}`;
+
+  const resposta = await fetch(URL);
+  const info = await resposta.json();
+  return {
+    temp: info.current.temp_c,
+    condition: info.current.condition.text,
+    icon: info.current.condition.icon,
+  };
 };
