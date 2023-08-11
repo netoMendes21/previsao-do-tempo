@@ -1,5 +1,6 @@
 import { getWeatherByCity, searchCities } from './weatherAPI';
 
+const TOKEN = import.meta.env.VITE_TOKEN;
 /**
  * Cria um elemento HTML com as informações passadas
  */
@@ -76,8 +77,8 @@ export function showForecast(forecastList) {
 /**
  * Recebe um objeto com as informações de uma cidade e retorna um elemento HTML
  */
-export function createCityElement(cityInfo) {
-  const { name, country, temp, condition, icon /* , url */ } = cityInfo;
+export async function createCityElement(cityInfo) {
+  const { name, country, temp, condition, icon, url } = cityInfo;
 
   const cityElement = createElement('li', 'city');
 
@@ -104,6 +105,26 @@ export function createCityElement(cityInfo) {
   cityElement.appendChild(headingElement);
   cityElement.appendChild(infoContainer);
 
+  const botao = document.createElement('button');
+  botao.textContent = 'Ver previsão';
+  const urlPrevisao = `http://api.weatherapi.com/v1/forecast.json?lang=pt&key=${TOKEN}&q=${url}&days=7`;
+
+  const resposta = await fetch(urlPrevisao);
+  const info = await resposta.json();
+  const listaPrevisao = info.forecast.forecastday.map((previsao) => {
+    return {
+      date: previsao.date,
+      maxTemp: previsao.day.maxtemp_c,
+      minTemp: previsao.day.mintemp_c,
+      condition: previsao.day.condition.text,
+      icon: previsao.day.condition.icon,
+    };
+  });
+
+  botao.addEventListener('click', () => {
+    return showForecast(listaPrevisao);
+  });
+  cityElement.appendChild(botao);
   return cityElement;
 }
 
